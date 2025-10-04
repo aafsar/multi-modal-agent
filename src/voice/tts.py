@@ -62,6 +62,21 @@ class TextToSpeech:
 
     def _speak_local(self, text: str):
         """Speak using pyttsx3 local engine."""
+        # On macOS, pyttsx3 can get stuck after first runAndWait()
+        # Workaround: reinitialize the engine for each speech
+        import platform
+        if platform.system() == 'Darwin':  # macOS
+            # Reinitialize engine for each call
+            try:
+                if self.tts_engine:
+                    self.tts_engine.stop()
+            except:
+                pass
+
+            self.tts_engine = pyttsx3.init()
+            self.tts_engine.setProperty('rate', self.rate)
+            self.tts_engine.setProperty('volume', self.volume)
+
         self.tts_engine.say(text)
         self.tts_engine.runAndWait()
 
