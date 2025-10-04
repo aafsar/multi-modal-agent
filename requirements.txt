@@ -1,0 +1,29 @@
+# Core voice processing (v1 - local)
+openai-whisper  # Local STT (latest compatible version)
+pyttsx3  # Local TTS
+sounddevice  # Audio recording/playback
+soundfile  # Audio file I/O (for API mode)
+numpy
+scipy
+
+# CrewAI and agent dependencies
+crewai
+crewai-tools
+langchain
+langchain-openai
+openai  # Also used for v2 STT/TTS APIs
+
+# Terminal UI
+rich
+python-dotenv
+
+# Utilities
+pynput  # For Mac-compatible key detection
+
+# Audio playback (for API TTS)
+pygame  # Alternative: playsound, simpleaudio
+
+# Notes:
+# - v1 (local): Requires openai-whisper and pyttsx3
+# - v2 (api): Only requires openai package
+# - For cloud deployment (v2), you can exclude openai-whisper to reduce size

@@ -1,0 +1,67 @@
+next_class_briefing:
+  description: >
+    Identify the next upcoming class in the MIT AI Studio Fall 2025 schedule based on
+    today's date. Read the schedule.csv file to find the next class that hasn't occurred yet.
+    Provide comprehensive information including the date, time, topic, speakers, and any
+    associated homework for both Tech Track and Analyst Track. Today's date is {current_date}.
+    The schedule file is located at {schedule_path}. Parse the CSV data carefully to find
+    classes with dates after today.
+  expected_output: >
+    A detailed briefing containing:
+    - Next class date and time
+    - Topic and description
+    - Speaker(s) information
+    - Homework assignments for both tracks
+    - Days until the class
+    - Any special notes or preparation suggestions
+  agent: schedule_navigator
+
+topic_primer:
+  description: >
+    Research the topic "{topic}" which is covered in the MIT AI Studio course.
+    Create a comprehensive primer that includes key concepts, current developments,
+    and relevant background information. If a speaker is mentioned, research their
+    background and contributions to the field. Make it engaging and accessible for
+    students preparing for the class.
+  expected_output: >
+    A 1-2 page primer document containing:
+    - Overview of the topic
+    - Key concepts and definitions
+    - Current state and recent developments
+    - Why it matters for AI and agents
+    - 3-5 recommended resources for deeper learning
+    - If applicable, speaker background and notable work
+  agent: topic_researcher
+
+weekly_preparation:
+  description: >
+    Create a week-ahead preparation plan starting from {current_date}.
+    Read the schedule.csv file at {schedule_path} to identify any classes in the next 7 days.
+    Also read the user's preferences from {preferences_path} to personalize the plan.
+    Include daily study tasks, readings, and preparation items. Make sure to account
+    for homework deadlines and upcoming topics.
+  expected_output: >
+    A structured weekly plan with:
+    - Daily breakdown of tasks
+    - Specific preparation for upcoming classes
+    - Homework reminders with deadlines
+    - Suggested study time allocations
+    - Topic preview recommendations
+    - Personalized tips based on learning style
+  agent: study_coordinator
+
+assignment_tracker:
+  description: >
+    Read the entire MIT AI Studio schedule from {schedule_path} and extract all
+    homework assignments for the {track} Track. Parse the CSV to find all assignments
+    in the homework columns. Organize them by due date and provide details about
+    each assignment. Include both completed and upcoming assignments,
+    clearly marking their status based on {current_date}.
+  expected_output: >
+    A comprehensive assignment list containing:
+    - All assignments for the specified track
+    - Due dates and current status (completed/upcoming)
+    - Assignment descriptions and requirements
+    - Upcoming assignments in the next 2 weeks highlighted
+    - Progress summary
+  agent: schedule_navigator

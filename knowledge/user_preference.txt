@@ -1,0 +1,31 @@
+MIT AI Studio Student Profile
+==============================
+
+Name: AI Studio Student
+Track: Tech Track
+Learning Style: Visual and hands-on learner
+Preferred Study Time: Evenings and weekends
+Background: Software engineering with interest in AI agents
+
+Goals:
+- Master the concepts of agentic web and AI agents
+- Build practical agent systems using CrewAI
+- Understand multimodal AI applications
+- Complete all Tech Track assignments on time
+
+Interests:
+- Agent orchestration and multi-agent systems
+- Natural language processing
+- AI coding tools and automation
+- Building practical AI applications
+
+Study Preferences:
+- Prefer concise summaries with bullet points
+- Like to see code examples and practical applications
+- Need reminders 2-3 days before assignments are due
+- Want to understand both theory and implementation
+
+Notes:
+- Particularly interested in CrewAI framework
+- Want to build a portfolio of agent projects
+- Preparing for Demo Day presentation

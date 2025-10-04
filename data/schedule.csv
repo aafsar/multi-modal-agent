@@ -1,0 +1,31 @@
+Date,Time,Topic,Speakers,With support of,Homework: Tech Track,Homework: Analyst Track
+8/26/2025,12 Noon – 1 PM,MIT AI Studio - Virtual Meeting,,,,
+9/2/2025,5:30 PM – 7:30 PM,MIT AI Studio - Social,,,,
+9/4/2025,10 AM – 11 AM,The Big Picture: Why the Agentic Web Matters,Ramesh Raskar,"Connie Y., Nikolay V., Honey P.",Create a CrewAI agent that represents you,Agent: Create an agent using Replit
+9/4/2025,11 AM – 12 PM,What Is an AI Agent?,Pradyumna Chari,"Frido H., Nikhil B., Serge V.",,"Write a survey of 3 agent makers, and their usefulness in a specific sector"
+9/9/2025,5 PM – 7 PM,Social,,"Frido, Beatriz, Dani, Dillon, Anthony",,
+9/11/2025,10 AM – 11 AM,AI Coding,"Frido Haugg, Nikolay Vyahhi","Connie Y., Honey P., Serge V.",Connect: Wrap the agent in the Nanda adapter (add to index + add communication protocols) and communicate with fixed agent we will provide,AI coding: Use Claude Code to create a webapp
+9/11/2025,11 AM – 12 PM,Introduction to the Agentic Web,"Maria Gorskikh, Pradyumna Chari","Pradyumna C., Nikhil B.",,"Write a comparison between software, microservices and agents, in a specific sector (such as health, finance, legal etc)"
+9/18/2025,10 AM – 11 AM,The Business Landscape: From Web 1.0 to the Agentic Web,Pradyumna Chari,"Nikolay V. Connie Y., Serge V.",Deploy in Sandbox: Deploy your agent into the Nanda Agentic Web Simulation Sandbox,"Build a customer agent chatbot with a large database (with MCP), and register the MCP in Nanda registry"
+9/18/2025,11 AM – 12 PM,Tools and MCPs,"Maria Gorskikh, Nikolay Vyahhi","Frido H., Nikhil B., Honey P.",,"Pick 3 key components (e.g., agents, registries, protocols, adapters) and explain how they fit together to enable new business opportunities"
+9/25/2025,10 AM – 11 AM,"Multimodal AI: Audio, Video, and Emerging Media","Pradyumna Chari, Nikolay Vyahhi","Connie Y., Maria G., Honey P.","Create a Debate System — orchestrate two agents (built with the Adapter SDK) to run a structured, turn-based debate on a chosen topic, optionally adding a “judge” agent to evaluate the outcome.",Build and try out audio and video AI agents
+9/25/2025,11 AM – 12 PM,Opportunities and Challenges with Agents,Nikolay Vyahhi,"Frido H., Nikhil B., Serge V.",,"Write a short comparison of how multimodal AI could change one sector (such as healthcare, marketing, or education)"
+10/2/2025,10 AM – 10:30 AM,Quiz #1,,,,
+10/2/2025,10:30 AM – 11 PM,Agentic Economy & Transactions,"Maria Gorskikh, Pradyumna Chari",,"Connect your agent to a (points) wallet, earn and redeem points",Connect your agent with an Adapter
+10/2/2025,11 AM – 12 PM,Agent Wallets & Digital Identity,"Robert Bench, Radius",,,"Write a short essay listing 2-3 opportunities and 2-3 challenges for deploying agents at scale in specific business sector (such as health, finance, legal etc)"
+10/9/2025,10 AM – 11 AM,"State of AI: Models, Reasoning, Multimodal Systems",Andrew Mead,,Explore networked teaming of agents,Networked Agent to agent interaction via the Nanda index
+10/9/2025,11 AM – 12 PM,AI Coding II: Tools & the Future of Software Development,"Frido Haugg, Nikolay Vyahhi",,,"Write a short essay on how AI coding tools might shift the roles of developers, product managers, and testers over the next 5 years."
+10/16/2025,10 AM – 11 AM,"Invited Speaker: Pattie Maes*, History of AI Agents",,,Project Week 1,Project Week 1
+10/16/2025,11 AM – 12 PM,Project Topics Presentation and Discussion,All,,Virtual Customer Interview + Optional (Agent Games of Thrones),Virtual Customer Interview
+10/23/2025,10 AM – 11 AM,Invited Speaker: Vijoy Pandey* (Cisco),,,Project Week 2,Project Week 2
+10/23/2025,11 AM – 12 PM,Venture Presentation: Greg Raiz* (FoundersEdge),All,,"Virtual VC Interview + Optional (Evaluations, efficiency)",Virtual VC Interview
+10/30/2025,10 AM – 11 AM,Invited Speaker: Todd Segal* (Google A2A),,,Project Week 3,Project Week 3
+10/30/2025,11 AM – 12 PM,Corporate Presentation: Phil Mui* (Salesforce),All,,Virtual Market Analysis,Virtual Market Analysis
+11/6/2025,10 AM – 10:30 AM,Quiz #2,,,,
+11/6/2025,10:30 AM – 11 PM,Invited Speaker: RV Guha* (Microsoft),,,Project Week 4,Project Week 4
+11/6/2025,11 AM – 12 PM,Project Presentations & Feedback,All,,Virtual go-to-market,Virtual go-to-market
+11/13/2025,10 AM – 11 AM,Invited Speaker/Special Topic,,,,
+11/13/2025,11 AM – 12 PM,Project Presentations & Feedback,All,,Project Week 5,Project Week 5
+11/20/2025,10 AM – 11 AM,Invited Speaker/Special Topic,,,,
+11/20/2025,11 AM – 12 PM,Project Presentations & Feedback: Richard Dulude* (Underscore VC),All,,Project Week 6,Project Week 6
+12/04/2025,10 AM – 12 PM,Demo Day,,,Final Demos,Final Demos
