@@ -147,9 +147,11 @@ class VoiceOrchestrator:
             self.state = State.SPEAKING
             self.ui.show_speaking()
 
+            print(f"[DEBUG ORCH] About to call TTS with {len(response_text)} chars")
             tts_start = time.time()
             self.tts.speak(response_text)
             tts_time = time.time() - tts_start
+            print(f"[DEBUG ORCH] TTS completed in {tts_time:.2f}s")
 
             # Update metrics
             total_time = time.time() - turn_start
