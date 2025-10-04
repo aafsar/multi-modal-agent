@@ -16,31 +16,20 @@ class AudioRecorder:
         self.audio_data = []
         self.start_time = None
 
-    def record_push_to_talk(self, quit_callback=None) -> np.ndarray:
+    def record_push_to_talk(self) -> np.ndarray:
         """
-        Record audio while spacebar is held down.
-
-        Args:
-            quit_callback: Optional function to check if user wants to quit
+        Record audio while Right Ctrl is held down.
 
         Returns:
-            numpy array suitable for Whisper processing, or None if quit requested
+            numpy array suitable for Whisper processing
         """
         self.audio_data = []
         self.is_recording = False
-        self.quit_requested = False
         recording_complete = threading.Event()
 
         def on_press(key):
             """Start recording when Right Ctrl is pressed."""
             try:
-                # Check for quit
-                if hasattr(key, 'char') and key.char == 'q':
-                    self.quit_requested = True
-                    self.is_recording = False
-                    recording_complete.set()
-                    return False  # Stop listener
-
                 # Start recording on Right Ctrl
                 if key == keyboard.Key.ctrl_r and not self.is_recording:
                     self.is_recording = True
@@ -60,24 +49,19 @@ class AudioRecorder:
         listener = keyboard.Listener(on_press=on_press, on_release=on_release)
         listener.start()
 
-        # Wait for spacebar press to start recording (or quit)
-        while not self.is_recording and not self.quit_requested:
+        # Wait for Right Ctrl press to start recording
+        while not self.is_recording:
             time.sleep(0.01)
 
-        # If quit requested, stop and return None
-        if self.quit_requested:
-            listener.stop()
-            return None
-
-        # Record audio while spacebar is held
+        # Record audio while Right Ctrl is held
         with sd.InputStream(
             samplerate=self.sample_rate,
             channels=self.channels,
             dtype='float32',
             callback=self._audio_callback
         ):
-            # Record until spacebar released or max duration reached
-            while self.is_recording and not self.quit_requested:
+            # Record until Right Ctrl released or max duration reached
+            while self.is_recording:
                 elapsed = time.time() - self.start_time
                 if elapsed >= RECORD_MAX_SECONDS:
                     self.is_recording = False
@@ -86,10 +70,6 @@ class AudioRecorder:
                 time.sleep(0.01)
 
         listener.stop()
-
-        # If quit requested during recording, return None
-        if self.quit_requested:
-            return None
 
         # Convert list of audio chunks to single numpy array
         if len(self.audio_data) > 0:

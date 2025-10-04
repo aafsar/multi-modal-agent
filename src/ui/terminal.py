@@ -32,11 +32,19 @@ class TerminalUI:
         self.console.print(welcome_panel)
         self.console.print()
         self.console.print(
-            "[bold green]Press and hold Right CTRL[/bold green] to ask about your next class...",
+            "💡 [bold]Two ways to interact:[/bold]",
             justify="center"
         )
         self.console.print(
-            "[dim]Release Right CTRL to stop recording (max 10 seconds) • Press 'q' to quit[/dim]",
+            "   🎤 [bold green]Voice:[/bold green] Press and hold Right CTRL",
+            justify="center"
+        )
+        self.console.print(
+            "   ⌨️  [bold cyan]Text:[/bold cyan] Type your question and press Enter",
+            justify="center"
+        )
+        self.console.print(
+            "   [dim]Type '/exit' to quit[/dim]",
             justify="center"
         )
         self.console.print()
@@ -115,7 +123,7 @@ class TerminalUI:
         """Show prompt for next action."""
         self.console.print()
         self.console.print(
-            "[dim]Press Right CTRL for another query or 'q' to quit[/dim]",
+            "[dim]💬 Voice: Right CTRL  •  ⌨️  Text: Type below  •  Exit: /exit[/dim]",
             justify="center"
         )
         self.console.print()

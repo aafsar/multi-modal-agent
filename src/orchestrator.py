@@ -77,9 +77,18 @@ class VoiceOrchestrator:
                 self.state = State.IDLE
                 self.ui.show_prompt()
 
-                # Handle one voice interaction
+                # Wait for user input (voice or text)
                 try:
-                    self.handle_voice_turn()
+                    mode, data = self.wait_for_user_input()
+
+                    if mode == 'exit':
+                        self.should_exit = True
+                        break
+                    elif mode == 'voice':
+                        self.handle_voice_turn()
+                    elif mode == 'text':
+                        self.handle_text_turn(data)
+
                 except KeyboardInterrupt:
                     break
                 except Exception as e:
@@ -87,6 +96,100 @@ class VoiceOrchestrator:
 
         finally:
             self.cleanup()
+
+    def wait_for_user_input(self) -> tuple:
+        """
+        Wait for user input in either text or voice mode.
+
+        Returns:
+            tuple: (mode, data) where mode is 'voice', 'text', or 'exit'
+                   data is the text input for text mode, None otherwise
+        """
+        import threading
+
+        result = {'mode': None, 'data': None}
+        input_received = threading.Event()
+
+        def check_voice_input():
+            """Check for Right CTRL press."""
+            def on_press(key):
+                try:
+                    if key == keyboard.Key.ctrl_r:
+                        if not input_received.is_set():
+                            # Print feedback to show voice mode activated
+                            print("\n🎤 Voice mode activated...")
+                            result['mode'] = 'voice'
+                            input_received.set()
+                        return False  # Stop listener
+                except:
+                    pass
+
+            from pynput import keyboard
+            listener = keyboard.Listener(on_press=on_press)
+            listener.start()
+            input_received.wait()  # Wait until some input is received
+            listener.stop()
+
+        def get_text_input():
+            """Get text input from user."""
+            try:
+                text = input().strip()
+                if not input_received.is_set():
+                    if text == '/exit':
+                        result['mode'] = 'exit'
+                    else:
+                        result['mode'] = 'text'
+                        result['data'] = text
+                    input_received.set()
+            except EOFError:
+                if not input_received.is_set():
+                    result['mode'] = 'exit'
+                    input_received.set()
+
+        # Start voice listener in background thread
+        voice_thread = threading.Thread(target=check_voice_input, daemon=True)
+        voice_thread.start()
+
+        # Get text input in main thread (blocking)
+        self.ui.console.print()
+        self.ui.console.print("[bold]Your question:[/bold] ", end="")
+        get_text_input()
+
+        # Wait for result
+        input_received.wait()
+
+        return result['mode'], result['data']
+
+    def handle_text_turn(self, user_text: str):
+        """Handle one complete text-based interaction turn."""
+        turn_start = time.time()
+
+        try:
+            if not user_text or len(user_text.strip()) == 0:
+                self.ui.show_error("Empty input. Please try again.")
+                return
+
+            self.ui.show_transcription(user_text)
+
+            # THINKING: Process with AI agent
+            self.state = State.THINKING
+            self.ui.show_thinking()
+
+            agent_start = time.time()
+            current_date = datetime.now().strftime("%m/%d/%Y")
+            response_text = self.agent.get_next_class_info(current_date)
+            agent_time = time.time() - agent_start
+
+            # Display response (text only, no TTS)
+            self.ui.show_response(response_text)
+
+            # Update metrics (no STT or TTS for text mode)
+            total_time = time.time() - turn_start
+            self._update_metrics(0, agent_time, 0, total_time)
+
+        except Exception as e:
+            self.state = State.ERROR
+            raise
 
     def handle_voice_turn(self):
         """Handle one complete voice interaction turn."""
@@ -97,11 +200,6 @@ class VoiceOrchestrator:
             self.state = State.RECORDING
             self.ui.show_recording()
             audio = self.recorder.record_push_to_talk()
-
-            # Check if user pressed 'q' to quit
-            if audio is None:
-                self.should_exit = True
-                return
 
             if len(audio) == 0:
                 self.ui.show_error("No audio recorded. Please try again.")
