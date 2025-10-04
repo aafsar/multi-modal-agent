@@ -36,7 +36,7 @@ class TerminalUI:
             justify="center"
         )
         self.console.print(
-            "[dim]Release SPACEBAR to stop recording (max 10 seconds)[/dim]",
+            "[dim]Release SPACEBAR to stop recording (max 10 seconds) • Press 'q' to quit[/dim]",
             justify="center"
         )
         self.console.print()

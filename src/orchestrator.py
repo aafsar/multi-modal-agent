@@ -1,7 +1,6 @@
 from enum import Enum
 import time
 from datetime import datetime
-from pynput import keyboard
 
 from src.audio.recorder import AudioRecorder
 from src.voice.stt import WhisperSTT
@@ -73,10 +72,6 @@ class VoiceOrchestrator:
         # Initialize components
         self._init_components()
 
-        # Set up keyboard listener for 'q' to quit
-        listener = keyboard.Listener(on_press=self._on_key_press)
-        listener.start()
-
         try:
             while not self.should_exit:
                 self.state = State.IDLE
@@ -91,17 +86,7 @@ class VoiceOrchestrator:
                     self.handle_error(e)
 
         finally:
-            listener.stop()
             self.cleanup()
-
-    def _on_key_press(self, key):
-        """Handle keyboard input for quit command."""
-        try:
-            if hasattr(key, 'char') and key.char == 'q':
-                self.should_exit = True
-                return False  # Stop listener
-        except AttributeError:
-            pass
 
     def handle_voice_turn(self):
         """Handle one complete voice interaction turn."""
@@ -112,6 +97,11 @@ class VoiceOrchestrator:
             self.state = State.RECORDING
             self.ui.show_recording()
             audio = self.recorder.record_push_to_talk()
+
+            # Check if user pressed 'q' to quit
+            if audio is None:
+                self.should_exit = True
+                return
 
             if len(audio) == 0:
                 self.ui.show_error("No audio recorded. Please try again.")
