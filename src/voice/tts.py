@@ -67,8 +67,6 @@ class TextToSpeech:
         # On macOS, pyttsx3 has issues with engine reuse after runAndWait()
         # Solution: Create a completely fresh engine instance each time
         if platform.system() == 'Darwin':  # macOS
-            print("[DEBUG] macOS detected - creating fresh pyttsx3 engine")
-
             # Clean up old engine completely
             if self.tts_engine is not None:
                 try:
@@ -81,13 +79,9 @@ class TextToSpeech:
             self.tts_engine.setProperty('rate', self.rate)
             self.tts_engine.setProperty('volume', self.volume)
 
-            print(f"[DEBUG] About to speak: {text[:50]}...")
-
         # Speak the text
         self.tts_engine.say(text)
-        print("[DEBUG] Called say(), now calling runAndWait()...")
         self.tts_engine.runAndWait()
-        print("[DEBUG] runAndWait() completed")
 
     def _speak_api(self, text: str):
         """Speak using OpenAI TTS API."""
