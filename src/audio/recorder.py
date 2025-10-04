@@ -32,7 +32,7 @@ class AudioRecorder:
         recording_complete = threading.Event()
 
         def on_press(key):
-            """Start recording when spacebar is pressed."""
+            """Start recording when Right Ctrl is pressed."""
             try:
                 # Check for quit
                 if hasattr(key, 'char') and key.char == 'q':
@@ -41,8 +41,8 @@ class AudioRecorder:
                     recording_complete.set()
                     return False  # Stop listener
 
-                # Start recording on spacebar
-                if key == keyboard.Key.space and not self.is_recording:
+                # Start recording on Right Ctrl
+                if key == keyboard.Key.ctrl_r and not self.is_recording:
                     self.is_recording = True
                     self.start_time = time.time()
                     self.audio_data = []
@@ -50,8 +50,8 @@ class AudioRecorder:
                 pass
 
         def on_release(key):
-            """Stop recording when spacebar is released."""
-            if key == keyboard.Key.space and self.is_recording:
+            """Stop recording when Right Ctrl is released."""
+            if key == keyboard.Key.ctrl_r and self.is_recording:
                 self.is_recording = False
                 recording_complete.set()
                 return False  # Stop listener

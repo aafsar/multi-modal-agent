@@ -32,11 +32,11 @@ class TerminalUI:
         self.console.print(welcome_panel)
         self.console.print()
         self.console.print(
-            "[bold green]Press and hold SPACEBAR[/bold green] to ask about your next class...",
+            "[bold green]Press and hold Right CTRL[/bold green] to ask about your next class...",
             justify="center"
         )
         self.console.print(
-            "[dim]Release SPACEBAR to stop recording (max 10 seconds) • Press 'q' to quit[/dim]",
+            "[dim]Release Right CTRL to stop recording (max 10 seconds) • Press 'q' to quit[/dim]",
             justify="center"
         )
         self.console.print()
@@ -115,7 +115,7 @@ class TerminalUI:
         """Show prompt for next action."""
         self.console.print()
         self.console.print(
-            "[dim]Press SPACEBAR for another query or 'q' to quit[/dim]",
+            "[dim]Press Right CTRL for another query or 'q' to quit[/dim]",
             justify="center"
         )
         self.console.print()

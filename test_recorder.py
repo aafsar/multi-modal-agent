@@ -8,8 +8,8 @@ from src.audio.recorder import AudioRecorder
 
 def main():
     print("=== Audio Recorder Test ===")
-    print("Press and hold SPACEBAR to record (max 10 seconds)")
-    print("Release SPACEBAR to stop recording\n")
+    print("Press and hold Right CTRL to record (max 10 seconds)")
+    print("Release Right CTRL to stop recording\n")
 
     recorder = AudioRecorder()
 
