@@ -169,7 +169,7 @@ class VoiceOrchestrator:
                 self.ui.show_error("Empty input. Please try again.")
                 return
 
-            self.ui.show_transcription(user_text)
+            # No need to show transcription for text (user already sees what they typed)
 
             # THINKING: Process with AI agent
             self.state = State.THINKING
