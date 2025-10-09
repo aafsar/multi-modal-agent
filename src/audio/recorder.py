@@ -35,6 +35,7 @@ class AudioRecorder:
                     self.is_recording = True
                     self.start_time = time.time()
                     self.audio_data = []
+                    print("\n🔴 Recording... Speak now...")
             except AttributeError:
                 pass
 

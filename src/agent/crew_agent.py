@@ -6,6 +6,10 @@ from datetime import datetime
 from typing import List
 import os
 
+# Disable CrewAI telemetry and trace messages
+os.environ['CREWAI_TELEMETRY_OPT_OUT'] = 'true'
+os.environ['CREWAI_TRACE_ENABLED'] = 'false'
+
 
 @CrewBase
 class VoiceCourseAgent:
@@ -94,29 +98,38 @@ class VoiceCourseAgent:
             tasks=self.tasks,
             process=Process.sequential,
             verbose=False,  # Less verbose for cleaner voice interaction
-            memory=False  # Disable memory for faster responses
+            memory=False,  # Disable memory for faster responses
+            output_log_file=False  # Disable trace output
         )
 
-    def get_next_class_info(self, current_date: str = None) -> str:
+    def get_next_class_info(self, user_question: str, current_date: str = None) -> str:
         """
         Get information about the next class.
 
         Args:
+            user_question: The user's original question
             current_date: Optional date string (e.g., "10/15/2024")
                          If None, uses today's date
 
         Returns:
-            String with next class information
+            String with next class information tailored to user's question
         """
         if current_date is None:
             current_date = datetime.now().strftime("%m/%d/%Y")
 
-        # Create crew with only next_class_briefing task
-        crew = self.crew()
-        crew.tasks = [crew.tasks[0]]
+        # Create fresh crew with only schedule_navigator agent and next_class_briefing task
+        crew = Crew(
+            agents=[self.schedule_navigator()],
+            tasks=[self.next_class_briefing()],
+            process=Process.sequential,
+            verbose=False,
+            memory=False,
+            output_log_file=False
+        )
 
         # Run the crew
         result = crew.kickoff(inputs={
+            'user_question': user_question,
             'current_date': current_date,
             'schedule_path': self.schedule_path
         })
@@ -127,26 +140,34 @@ class VoiceCourseAgent:
         else:
             return str(result)
 
-    def research_topic(self, topic: str, current_date: str = None) -> str:
+    def research_topic(self, user_question: str, topic: str, current_date: str = None) -> str:
         """
         Research a specific topic related to the course.
 
         Args:
+            user_question: The user's original question
             topic: The topic to research
             current_date: Optional date string
 
         Returns:
-            String with topic research primer
+            String with topic research tailored to user's question
         """
         if current_date is None:
             current_date = datetime.now().strftime("%m/%d/%Y")
 
-        # Create crew with only topic_primer task
-        crew = self.crew()
-        crew.tasks = [crew.tasks[1]]
+        # Create fresh crew with only topic_researcher agent and topic_primer task
+        crew = Crew(
+            agents=[self.topic_researcher()],
+            tasks=[self.topic_primer()],
+            process=Process.sequential,
+            verbose=False,
+            memory=False,
+            output_log_file=False
+        )
 
         # Run the crew
         result = crew.kickoff(inputs={
+            'user_question': user_question,
             'topic': topic,
             'current_date': current_date
         })
@@ -157,25 +178,33 @@ class VoiceCourseAgent:
         else:
             return str(result)
 
-    def get_weekly_plan(self, current_date: str = None) -> str:
+    def get_weekly_plan(self, user_question: str, current_date: str = None) -> str:
         """
         Generate a weekly preparation plan.
 
         Args:
+            user_question: The user's original question
             current_date: Optional date string
 
         Returns:
-            String with weekly preparation plan
+            String with weekly preparation plan tailored to user's question
         """
         if current_date is None:
             current_date = datetime.now().strftime("%m/%d/%Y")
 
-        # Create crew with only weekly_preparation task
-        crew = self.crew()
-        crew.tasks = [crew.tasks[2]]
+        # Create fresh crew with only study_coordinator agent and weekly_preparation task
+        crew = Crew(
+            agents=[self.study_coordinator()],
+            tasks=[self.weekly_preparation()],
+            process=Process.sequential,
+            verbose=False,
+            memory=False,
+            output_log_file=False
+        )
 
         # Run the crew
         result = crew.kickoff(inputs={
+            'user_question': user_question,
             'current_date': current_date,
             'schedule_path': self.schedule_path,
             'preferences_path': self.preferences_path
@@ -187,16 +216,17 @@ class VoiceCourseAgent:
         else:
             return str(result)
 
-    def track_assignments(self, track: str, current_date: str = None) -> str:
+    def track_assignments(self, user_question: str, track: str, current_date: str = None) -> str:
         """
         Track assignments for a specific track.
 
         Args:
+            user_question: The user's original question
             track: 'Tech' or 'Analyst'
             current_date: Optional date string
 
         Returns:
-            String with assignment tracking information
+            String with assignment tracking information tailored to user's question
         """
         if current_date is None:
             current_date = datetime.now().strftime("%m/%d/%Y")
@@ -205,12 +235,19 @@ class VoiceCourseAgent:
         if track not in ['Tech', 'Analyst']:
             track = 'Tech'  # Default to Tech
 
-        # Create crew with only assignment_tracker task
-        crew = self.crew()
-        crew.tasks = [crew.tasks[3]]
+        # Create fresh crew with only schedule_navigator agent and assignment_tracker task
+        crew = Crew(
+            agents=[self.schedule_navigator()],
+            tasks=[self.assignment_tracker()],
+            process=Process.sequential,
+            verbose=False,
+            memory=False,
+            output_log_file=False
+        )
 
         # Run the crew
         result = crew.kickoff(inputs={
+            'user_question': user_question,
             'track': track,
             'current_date': current_date,
             'schedule_path': self.schedule_path

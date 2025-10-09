@@ -144,22 +144,18 @@ class VoiceOrchestrator:
         """
         current_date = datetime.now().strftime("%m/%d/%Y")
 
-        # Handle help command
-        if user_text.lower() in ['help', '/help', 'menu']:
-            self.ui.show_capabilities()
-            return "", 0.0
-
         # Classify intent
         classification = self.intent_classifier.classify(user_text, default_track='Tech')
         intent = classification['intent']
         params = classification['params']
 
-        # Show detected intent
-        self.ui.show_intent_detected(intent, params)
-
         # Handle help intent
         if intent == 'help':
-            self.ui.show_capabilities()
+            # Check if user explicitly asked for help
+            if user_text.lower() in ['help', '/help', 'menu']:
+                self.ui.console.print("\n💡 [cyan]Here's what I can help you with:[/cyan]")
+            else:
+                self.ui.console.print("\n💡 [yellow]I can't help you with that currently. See below for what I can help you with:[/yellow]")
             return "", 0.0
 
         # Check for missing parameters
@@ -182,22 +178,22 @@ class VoiceOrchestrator:
 
         try:
             if intent == 'next_class':
-                response_text = self.agent.get_next_class_info(current_date)
+                response_text = self.agent.get_next_class_info(user_text, current_date)
 
             elif intent == 'topic_research':
                 topic = params.get('topic', 'AI Agents')
-                response_text = self.agent.research_topic(topic, current_date)
+                response_text = self.agent.research_topic(user_text, topic, current_date)
 
             elif intent == 'weekly_plan':
-                response_text = self.agent.get_weekly_plan(current_date)
+                response_text = self.agent.get_weekly_plan(user_text, current_date)
 
             elif intent == 'assignments':
                 track = params.get('track', 'Tech')
-                response_text = self.agent.track_assignments(track, current_date)
+                response_text = self.agent.track_assignments(user_text, track, current_date)
 
             else:
                 # Fallback to next class info
-                response_text = self.agent.get_next_class_info(current_date)
+                response_text = self.agent.get_next_class_info(user_text, current_date)
 
             agent_time = time.time() - agent_start
             return response_text, agent_time

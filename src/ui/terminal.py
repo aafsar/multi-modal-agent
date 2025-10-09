@@ -48,10 +48,6 @@ class TerminalUI:
             "   • Press [bold red]'e'[/bold red] then Enter → Exit",
             justify="center"
         )
-        self.console.print(
-            "   • Type [dim]'help'[/dim] anytime to see capabilities",
-            justify="center"
-        )
         self.console.print()
 
     def show_capabilities(self):
