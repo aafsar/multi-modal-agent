@@ -6,6 +6,7 @@ from src.audio.recorder import AudioRecorder
 from src.voice.stt import WhisperSTT
 from src.voice.tts import TextToSpeech
 from src.agent.crew_agent import VoiceCourseAgent
+from src.agent.intent_classifier import IntentClassifier
 from src.ui.terminal import TerminalUI
 
 
@@ -44,6 +45,7 @@ class VoiceOrchestrator:
         self.stt = None
         self.tts = None
         self.agent = None
+        self.intent_classifier = None
 
     def _init_components(self):
         """Initialize components on first use."""
@@ -62,6 +64,10 @@ class VoiceOrchestrator:
         if self.agent is None:
             self.ui.console.print("[dim]Loading AI agent...[/dim]")
             self.agent = VoiceCourseAgent()
+
+        if self.intent_classifier is None:
+            self.ui.console.print("[dim]Initializing intent classifier...[/dim]")
+            self.intent_classifier = IntentClassifier()
 
         self.ui.console.print("[bold green] All systems ready![/bold green]\n")
 
@@ -160,6 +166,80 @@ class VoiceOrchestrator:
 
         return result['mode'], result['data']
 
+    def classify_and_execute_intent(self, user_text: str) -> tuple[str, float]:
+        """
+        Classify user intent and execute the appropriate agent task.
+
+        Args:
+            user_text: The user's question or request
+
+        Returns:
+            Tuple of (response_text, agent_time)
+        """
+        current_date = datetime.now().strftime("%m/%d/%Y")
+
+        # Handle help command
+        if user_text.lower() in ['help', '/help', 'menu']:
+            self.ui.show_capabilities()
+            return "", 0.0
+
+        # Classify intent
+        classification = self.intent_classifier.classify(user_text, default_track='Tech')
+        intent = classification['intent']
+        params = classification['params']
+
+        # Show detected intent
+        self.ui.show_intent_detected(intent, params)
+
+        # Handle help intent
+        if intent == 'help':
+            self.ui.show_capabilities()
+            return "", 0.0
+
+        # Check for missing parameters
+        if classification.get('needs_clarification'):
+            # Ask for missing information
+            clarification = classification.get('clarification_question', '')
+            if clarification:
+                self.ui.console.print(f"\n❓ [yellow]{clarification}[/yellow]")
+                return "", 0.0
+
+            # Prompt for specific parameter
+            if intent == 'topic_research' and 'topic' not in params:
+                topic = self.ui.ask_for_parameter('topic')
+                if not topic:
+                    return "", 0.0
+                params['topic'] = topic
+
+        # Execute intent
+        agent_start = time.time()
+
+        try:
+            if intent == 'next_class':
+                response_text = self.agent.get_next_class_info(current_date)
+
+            elif intent == 'topic_research':
+                topic = params.get('topic', 'AI Agents')
+                response_text = self.agent.research_topic(topic, current_date)
+
+            elif intent == 'weekly_plan':
+                response_text = self.agent.get_weekly_plan(current_date)
+
+            elif intent == 'assignments':
+                track = params.get('track', 'Tech')
+                response_text = self.agent.track_assignments(track, current_date)
+
+            else:
+                # Fallback to next class info
+                response_text = self.agent.get_next_class_info(current_date)
+
+            agent_time = time.time() - agent_start
+            return response_text, agent_time
+
+        except Exception as e:
+            self.ui.show_error(f"Error executing task: {str(e)}")
+            return "", 0.0
+
     def handle_text_turn(self, user_text: str):
         """Handle one complete text-based interaction turn."""
         turn_start = time.time()
@@ -175,13 +255,12 @@ class VoiceOrchestrator:
             self.state = State.THINKING
             self.ui.show_thinking()
 
-            agent_start = time.time()
-            current_date = datetime.now().strftime("%m/%d/%Y")
-            response_text = self.agent.get_next_class_info(current_date)
-            agent_time = time.time() - agent_start
+            # Classify intent and execute
+            response_text, agent_time = self.classify_and_execute_intent(user_text)
 
             # Display response (text only, no TTS)
-            self.ui.show_response(response_text)
+            if response_text:
+                self.ui.show_response(response_text)
 
             # Update metrics (no STT or TTS for text mode)
             total_time = time.time() - turn_start
@@ -223,21 +302,23 @@ class VoiceOrchestrator:
             self.state = State.THINKING
             self.ui.show_thinking()
 
-            agent_start = time.time()
-            current_date = datetime.now().strftime("%m/%d/%Y")
-            response_text = self.agent.get_next_class_info(current_date)
-            agent_time = time.time() - agent_start
+            # Classify intent and execute
+            response_text, agent_time = self.classify_and_execute_intent(transcribed_text)
 
             # Display response
-            self.ui.show_response(response_text)
+            if response_text:
+                self.ui.show_response(response_text)
 
-            # SPEAKING: Convert response to speech
-            self.state = State.SPEAKING
-            self.ui.show_speaking()
+                # SPEAKING: Convert response to speech
+                self.state = State.SPEAKING
+                self.ui.show_speaking()
 
-            tts_start = time.time()
-            self.tts.speak(response_text)
-            tts_time = time.time() - tts_start
+                tts_start = time.time()
+                self.tts.speak(response_text)
+                tts_time = time.time() - tts_start
+            else:
+                # No response (e.g., help command)
+                tts_time = 0
 
             # Update metrics
             total_time = time.time() - turn_start

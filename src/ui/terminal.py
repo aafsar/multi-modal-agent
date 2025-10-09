@@ -31,6 +31,11 @@ class TerminalUI:
 
         self.console.print(welcome_panel)
         self.console.print()
+
+        # Show capabilities
+        self.show_capabilities()
+
+        self.console.print()
         self.console.print(
             "💡 [bold]Two ways to interact:[/bold]",
             justify="center"
@@ -44,10 +49,35 @@ class TerminalUI:
             justify="center"
         )
         self.console.print(
-            "   [dim]Type '/exit' to quit[/dim]",
+            "   [dim]Type '/exit' to quit  •  Type 'help' to see this menu again[/dim]",
             justify="center"
         )
         self.console.print()
+
+    def show_capabilities(self):
+        """Display agent capabilities menu."""
+        capabilities_text = """[bold]I can help you with:[/bold]
+
+📚 [cyan]Next Class Information[/cyan]
+   "When is my next class?" • "What's coming up?"
+
+🔍 [cyan]Topic Research[/cyan]
+   "Research multimodal AI" • "Tell me about AI agents"
+
+📝 [cyan]Weekly Preparation Plan[/cyan]
+   "Create my weekly plan" • "What should I prepare?"
+
+📋 [cyan]Assignment Tracking[/cyan]
+   "Show my assignments" • "Track Tech track homework"
+"""
+        capabilities_panel = Panel(
+            capabilities_text.strip(),
+            title="[bold yellow]Available Commands[/bold yellow]",
+            box=ROUNDED,
+            border_style="yellow",
+            padding=(1, 2)
+        )
+        self.console.print(capabilities_panel, justify="center")
 
     def show_recording(self):
         """Show recording indicator."""
@@ -109,6 +139,57 @@ class TerminalUI:
 
         self.console.print()
         self.console.print(error_panel)
+
+    def show_intent_detected(self, intent: str, params: dict = None):
+        """
+        Show detected intent to user for transparency.
+
+        Args:
+            intent: The detected intent
+            params: Extracted parameters
+        """
+        intent_display = {
+            'next_class': '📚 Next Class Information',
+            'topic_research': '🔍 Topic Research',
+            'weekly_plan': '📝 Weekly Preparation Plan',
+            'assignments': '📋 Assignment Tracking',
+            'help': '❓ Help/Capabilities'
+        }
+
+        display_name = intent_display.get(intent, intent)
+        param_str = ""
+
+        if params:
+            if 'topic' in params:
+                param_str = f" (Topic: {params['topic']})"
+            elif 'track' in params:
+                param_str = f" ({params['track']} Track)"
+
+        self.console.print(f"\n🎯 [dim]Detected:[/dim] [cyan]{display_name}{param_str}[/cyan]")
+
+    def ask_for_parameter(self, param_name: str, prompt_text: str = None) -> str:
+        """
+        Ask user for a missing parameter.
+
+        Args:
+            param_name: Name of the parameter needed
+            prompt_text: Custom prompt text
+
+        Returns:
+            User's response
+        """
+        if prompt_text is None:
+            if param_name == 'topic':
+                prompt_text = "What topic would you like to research?"
+            elif param_name == 'track':
+                prompt_text = "Which track? (Tech/Analyst):"
+            else:
+                prompt_text = f"Please provide {param_name}:"
+
+        self.console.print()
+        self.console.print(f"❓ [bold yellow]{prompt_text}[/bold yellow]")
+        response = input("   → ").strip()
+        return response
 
     def show_goodbye(self):
         """Display goodbye message."""

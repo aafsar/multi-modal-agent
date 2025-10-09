@@ -1,7 +1,7 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
-from crewai_tools import FileReadTool
+from crewai_tools import FileReadTool, SerperDevTool, WebsiteSearchTool
 from datetime import datetime
 from typing import List
 import os
@@ -9,7 +9,7 @@ import os
 
 @CrewBase
 class VoiceCourseAgent:
-    """Voice-enabled MIT AI Studio Course Assistant (MVP: Next Class Briefing only)"""
+    """Voice-enabled MIT AI Studio Course Assistant - Full Capabilities"""
 
     agents: List[BaseAgent]
     tasks: List[Task]
@@ -32,6 +32,32 @@ class VoiceCourseAgent:
             allow_delegation=False
         )
 
+    @agent
+    def topic_researcher(self) -> Agent:
+        """Agent responsible for researching topics and speakers"""
+        search_tool = SerperDevTool()
+        web_tool = WebsiteSearchTool()
+
+        return Agent(
+            config=self.agents_config['topic_researcher'],
+            tools=[search_tool, web_tool],
+            verbose=False,
+            allow_delegation=False
+        )
+
+    @agent
+    def study_coordinator(self) -> Agent:
+        """Agent responsible for creating study plans and tracking preparation"""
+        preferences_file_tool = FileReadTool(file_path=self.preferences_path)
+        schedule_file_tool = FileReadTool(file_path=self.schedule_path)
+
+        return Agent(
+            config=self.agents_config['study_coordinator'],
+            tools=[preferences_file_tool, schedule_file_tool],
+            verbose=False,
+            allow_delegation=False
+        )
+
     @task
     def next_class_briefing(self) -> Task:
         """Task to get information about the next upcoming class"""
@@ -39,15 +65,36 @@ class VoiceCourseAgent:
             config=self.tasks_config['next_class_briefing']
         )
 
+    @task
+    def topic_primer(self) -> Task:
+        """Task to research and create a primer on a specific topic"""
+        return Task(
+            config=self.tasks_config['topic_primer']
+        )
+
+    @task
+    def weekly_preparation(self) -> Task:
+        """Task to create a weekly preparation plan"""
+        return Task(
+            config=self.tasks_config['weekly_preparation']
+        )
+
+    @task
+    def assignment_tracker(self) -> Task:
+        """Task to track all assignments for a specific track"""
+        return Task(
+            config=self.tasks_config['assignment_tracker']
+        )
+
     @crew
     def crew(self) -> Crew:
-        """Creates the Voice Course Assistant crew (MVP: single task)"""
+        """Creates the Voice Course Assistant crew"""
         return Crew(
             agents=self.agents,
             tasks=self.tasks,
             process=Process.sequential,
             verbose=False,  # Less verbose for cleaner voice interaction
-            memory=False  # Disable memory for faster responses in MVP
+            memory=False  # Disable memory for faster responses
         )
 
     def get_next_class_info(self, current_date: str = None) -> str:
@@ -64,15 +111,110 @@ class VoiceCourseAgent:
         if current_date is None:
             current_date = datetime.now().strftime("%m/%d/%Y")
 
-        # Update task description with current date
-        task_config = self.tasks_config['next_class_briefing'].copy()
-        if 'description' in task_config:
-            task_config['description'] = task_config['description'].replace(
-                "{current_date}", current_date
-            )
+        # Create crew with only next_class_briefing task
+        crew = self.crew()
+        crew.tasks = [crew.tasks[0]]
 
-        # Create and run crew
-        result = self.crew().kickoff()
+        # Run the crew
+        result = crew.kickoff(inputs={
+            'current_date': current_date,
+            'schedule_path': self.schedule_path
+        })
+
+        # Extract text from result
+        if hasattr(result, 'raw'):
+            return result.raw
+        else:
+            return str(result)
+
+    def research_topic(self, topic: str, current_date: str = None) -> str:
+        """
+        Research a specific topic related to the course.
+
+        Args:
+            topic: The topic to research
+            current_date: Optional date string
+
+        Returns:
+            String with topic research primer
+        """
+        if current_date is None:
+            current_date = datetime.now().strftime("%m/%d/%Y")
+
+        # Create crew with only topic_primer task
+        crew = self.crew()
+        crew.tasks = [crew.tasks[1]]
+
+        # Run the crew
+        result = crew.kickoff(inputs={
+            'topic': topic,
+            'current_date': current_date
+        })
+
+        # Extract text from result
+        if hasattr(result, 'raw'):
+            return result.raw
+        else:
+            return str(result)
+
+    def get_weekly_plan(self, current_date: str = None) -> str:
+        """
+        Generate a weekly preparation plan.
+
+        Args:
+            current_date: Optional date string
+
+        Returns:
+            String with weekly preparation plan
+        """
+        if current_date is None:
+            current_date = datetime.now().strftime("%m/%d/%Y")
+
+        # Create crew with only weekly_preparation task
+        crew = self.crew()
+        crew.tasks = [crew.tasks[2]]
+
+        # Run the crew
+        result = crew.kickoff(inputs={
+            'current_date': current_date,
+            'schedule_path': self.schedule_path,
+            'preferences_path': self.preferences_path
+        })
+
+        # Extract text from result
+        if hasattr(result, 'raw'):
+            return result.raw
+        else:
+            return str(result)
+
+    def track_assignments(self, track: str, current_date: str = None) -> str:
+        """
+        Track assignments for a specific track.
+
+        Args:
+            track: 'Tech' or 'Analyst'
+            current_date: Optional date string
+
+        Returns:
+            String with assignment tracking information
+        """
+        if current_date is None:
+            current_date = datetime.now().strftime("%m/%d/%Y")
+
+        # Validate track
+        if track not in ['Tech', 'Analyst']:
+            track = 'Tech'  # Default to Tech
+
+        # Create crew with only assignment_tracker task
+        crew = self.crew()
+        crew.tasks = [crew.tasks[3]]
+
+        # Run the crew
+        result = crew.kickoff(inputs={
+            'track': track,
+            'current_date': current_date,
+            'schedule_path': self.schedule_path
+        })
 
         # Extract text from result
         if hasattr(result, 'raw'):

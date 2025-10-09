@@ -1,7 +1,6 @@
 # Project-specific exclusions
 _instructions/
 .references/
-CLAUDE.md
 
 # Environment variables
 .env
@@ -54,8 +53,9 @@ temp_speech.*
 .DS_Store
 Thumbs.db
 
-# Jupyter
-.ipynb_checkpoints/
+# Claude
+.claude/
+CLAUDE.md
 
 # Logs
 *.log
