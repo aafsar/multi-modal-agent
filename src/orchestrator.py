@@ -50,26 +50,20 @@ class VoiceOrchestrator:
     def _init_components(self):
         """Initialize components on first use."""
         if self.recorder is None:
-            self.ui.console.print("[dim]Initializing audio recorder...[/dim]")
             self.recorder = AudioRecorder()
 
         if self.stt is None:
-            self.ui.console.print("[dim]Loading speech-to-text engine...[/dim]")
             self.stt = WhisperSTT()
 
         if self.tts is None:
-            self.ui.console.print("[dim]Initializing text-to-speech engine...[/dim]")
             self.tts = TextToSpeech()
 
         if self.agent is None:
-            self.ui.console.print("[dim]Loading AI agent...[/dim]")
             self.agent = VoiceCourseAgent()
 
         if self.intent_classifier is None:
-            self.ui.console.print("[dim]Initializing intent classifier...[/dim]")
             self.intent_classifier = IntentClassifier()
 
-        self.ui.console.print("[bold green] All systems ready![/bold green]\n")
 
     def run(self):
         """Main conversation loop."""
@@ -91,8 +85,10 @@ class VoiceOrchestrator:
                         self.should_exit = True
                         break
                     elif mode == 'voice':
-                        self.handle_voice_turn()
+                        # data is audio numpy array
+                        self.handle_voice_turn(audio_data=data)
                     elif mode == 'text':
+                        # data is text string
                         self.handle_text_turn(data)
 
                 except KeyboardInterrupt:
@@ -105,66 +101,36 @@ class VoiceOrchestrator:
 
     def wait_for_user_input(self) -> tuple:
         """
-        Wait for user input in either text or voice mode.
+        Wait for user input - simple v/t/e mode selection.
 
         Returns:
             tuple: (mode, data) where mode is 'voice', 'text', or 'exit'
-                   data is the text input for text mode, None otherwise
+                   For voice: data is audio numpy array
+                   For text: data is the text string
         """
-        import threading
-
-        result = {'mode': None, 'data': None}
-        input_received = threading.Event()
-
-        def check_voice_input():
-            """Check for Right CTRL press."""
-            def on_press(key):
-                try:
-                    if key == keyboard.Key.ctrl_r:
-                        if not input_received.is_set():
-                            # Print feedback to show voice mode activated
-                            print("\n🎤 Voice mode activated...")
-                            result['mode'] = 'voice'
-                            input_received.set()
-                        return False  # Stop listener
-                except:
-                    pass
-
-            from pynput import keyboard
-            listener = keyboard.Listener(on_press=on_press)
-            listener.start()
-            input_received.wait()  # Wait until some input is received
-            listener.stop()
-
-        def get_text_input():
-            """Get text input from user."""
-            try:
-                text = input().strip()
-                if not input_received.is_set():
-                    if text == '/exit':
-                        result['mode'] = 'exit'
-                    else:
-                        result['mode'] = 'text'
-                        result['data'] = text
-                    input_received.set()
-            except EOFError:
-                if not input_received.is_set():
-                    result['mode'] = 'exit'
-                    input_received.set()
-
-        # Start voice listener in background thread
-        voice_thread = threading.Thread(target=check_voice_input, daemon=True)
-        voice_thread.start()
-
-        # Get text input in main thread (blocking)
         self.ui.console.print()
-        self.ui.console.print("[bold]Your question:[/bold] ", end="")
-        get_text_input()
+        choice = input("Press (v) for voice, (t) for text, or (e) to exit, then ENTER: ").strip().lower()
 
-        # Wait for result
-        input_received.wait()
+        if choice == 'v':
+            # Voice mode
+            self.ui.console.print("\n🎤 [green]Press and hold Right CTRL to speak...[/green]")
+            audio = self.recorder.record_push_to_talk()
+            return ('voice', audio)
 
-        return result['mode'], result['data']
+        elif choice == 't':
+            # Text mode
+            text = input("\nType your question and press ENTER: ").strip()
+            if text == '/exit':
+                return ('exit', None)
+            return ('text', text)
+
+        elif choice == 'e' or choice == '/exit':
+            return ('exit', None)
+
+        else:
+            # Invalid choice - reprompt
+            self.ui.console.print("❌ [red]Invalid choice. Please press 'v', 't', or 'e'.[/red]")
+            return self.wait_for_user_input()
 
     def classify_and_execute_intent(self, user_text: str) -> tuple[str, float]:
         """
@@ -270,15 +236,24 @@ class VoiceOrchestrator:
             self.state = State.ERROR
             raise
 
-    def handle_voice_turn(self):
-        """Handle one complete voice interaction turn."""
+    def handle_voice_turn(self, audio_data=None):
+        """
+        Handle one complete voice interaction turn.
+
+        Args:
+            audio_data: Optional pre-recorded audio array. If None, will record.
+        """
         turn_start = time.time()
 
         try:
-            # RECORDING: Capture audio
-            self.state = State.RECORDING
-            self.ui.show_recording()
-            audio = self.recorder.record_push_to_talk()
+            # RECORDING: Capture audio (if not provided)
+            if audio_data is None:
+                self.state = State.RECORDING
+                self.ui.show_recording()
+                audio = self.recorder.record_push_to_talk()
+            else:
+                # Audio already recorded in wait_for_user_input()
+                audio = audio_data
 
             if len(audio) == 0:
                 self.ui.show_error("No audio recorded. Please try again.")
@@ -361,10 +336,6 @@ class VoiceOrchestrator:
     def cleanup(self):
         """Clean up all resources."""
         self.ui.show_goodbye()
-
-        # Show final metrics if there were any turns
-        if self.metrics['total_turns'] > 0:
-            self.ui.show_metrics(self.metrics)
 
         # Cleanup components
         if self.recorder:

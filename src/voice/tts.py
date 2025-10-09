@@ -28,16 +28,13 @@ class TextToSpeech:
                 self.tts_engine = pyttsx3.init()
                 self.set_rate(rate)
                 self.set_volume(volume)
-                print("✅ pyttsx3 TTS engine initialized")
             except Exception as e:
-                print(f"❌ Failed to initialize pyttsx3: {e}")
                 raise
         elif engine == 'api':
             if not OPENAI_API_KEY:
                 raise ValueError("OPENAI_API_KEY not set for API mode")
             from openai import OpenAI
             self.client = OpenAI(api_key=OPENAI_API_KEY)
-            print("✅ OpenAI TTS API configured")
         else:
             raise ValueError(f"Unknown TTS engine: {engine}")
 
@@ -57,7 +54,6 @@ class TextToSpeech:
             elif self.engine_type == 'api':
                 self._speak_api(text)
         except Exception as e:
-            print(f"❌ TTS error: {e}")
             raise
 
     def _speak_local(self, text: str):

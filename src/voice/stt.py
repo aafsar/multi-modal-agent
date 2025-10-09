@@ -23,15 +23,12 @@ class WhisperSTT:
         self.last_processing_time = 0.0
 
         if engine == 'local':
-            print(f"Loading Whisper '{model_name}' model... (this may take a moment)")
             self.model = whisper.load_model(model_name)
-            print("✅ Whisper model loaded successfully")
         elif engine == 'api':
             if not OPENAI_API_KEY:
                 raise ValueError("OPENAI_API_KEY not set for API mode")
             from openai import OpenAI
             self.client = OpenAI(api_key=OPENAI_API_KEY)
-            print("✅ OpenAI Whisper API configured")
         else:
             raise ValueError(f"Unknown STT engine: {engine}")
 
@@ -63,7 +60,6 @@ class WhisperSTT:
 
         except Exception as e:
             self.last_processing_time = time.time() - start_time
-            print(f"❌ Transcription error: {e}")
             raise
 
     def _transcribe_local(self, audio_data: np.ndarray) -> str:

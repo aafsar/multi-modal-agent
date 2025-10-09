@@ -32,24 +32,24 @@ class TerminalUI:
         self.console.print(welcome_panel)
         self.console.print()
 
-        # Show capabilities
-        self.show_capabilities()
-
-        self.console.print()
         self.console.print(
-            "💡 [bold]Two ways to interact:[/bold]",
+            "💡 [bold]How to interact:[/bold]",
             justify="center"
         )
         self.console.print(
-            "   🎤 [bold green]Voice:[/bold green] Press and hold Right CTRL",
+            "   • Press [bold green]'v'[/bold green] then Enter → Voice mode (hold Right CTRL to speak)",
             justify="center"
         )
         self.console.print(
-            "   ⌨️  [bold cyan]Text:[/bold cyan] Type your question and press Enter",
+            "   • Press [bold cyan]'t'[/bold cyan] then Enter → Text mode (type and Enter)",
             justify="center"
         )
         self.console.print(
-            "   [dim]Type '/exit' to quit  •  Type 'help' to see this menu again[/dim]",
+            "   • Press [bold red]'e'[/bold red] then Enter → Exit",
+            justify="center"
+        )
+        self.console.print(
+            "   • Type [dim]'help'[/dim] anytime to see capabilities",
             justify="center"
         )
         self.console.print()
@@ -72,7 +72,7 @@ class TerminalUI:
 """
         capabilities_panel = Panel(
             capabilities_text.strip(),
-            title="[bold yellow]Available Commands[/bold yellow]",
+            title="[bold yellow]I can help you with[/bold yellow]",
             box=ROUNDED,
             border_style="yellow",
             padding=(1, 2)
@@ -204,10 +204,11 @@ class TerminalUI:
         """Show prompt for next action."""
         self.console.print()
         self.console.print(
-            "[dim]💬 Voice: Right CTRL  •  ⌨️  Text: Type below  •  Exit: /exit[/dim]",
+            "[dim]─────────────────────────────────────────[/dim]",
             justify="center"
         )
         self.console.print()
+        self.show_capabilities()
 
     def show_metrics(self, metrics: dict):
         """
