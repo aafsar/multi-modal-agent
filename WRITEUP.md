@@ -237,6 +237,8 @@ crew = Crew(
 
 **GitHub Repository:** https://github.com/aafsar/multi-modal-agent
 
+**Setup & Usage Instructions:** See [README.md](README.md) for installation, configuration, and usage guide.
+
 ---
 
 **Technologies Used:**
